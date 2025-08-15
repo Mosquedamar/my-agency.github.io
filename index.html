@@ -462,21 +462,21 @@
     </div>
   </dialog>
 
- <!-- Scripts: pega esto en lugar de tu <script> anterior -->
+  <!-- Scripts -->
 <script>
   // ====== CONFIG ======
   // Tu Apps Script (URL que compartiste)
   const DRIVE_API_URL = 'https://script.google.com/macros/s/AKfycbzvHvnV6U7vSPj0h78p1p_FO-WO_ydJDyHtJlyN7Jppoj_kcNSMqK69B2Q9pBcVJtSa/exec';
 
-// Galerías por defecto (fallback)
+  // Galerías por defecto (fallback)
   const DEFAULT_GALLERIES = {
     playeras: [{ src: 'IMAGEN/color-removebg-preview.png', caption: 'Playera DTF logo a color' }],
-    sudaderas: [{ src: '', caption: 'Sudadera bordado pecho' }],
-    tazas: [{ src: 'galeria-1', caption: 'Taza mágica cambia con calor' }],
-    toldos: [{ src: 'galeria-2', caption: 'Toldo con impresión a medida' }],
-    led: [{ src: 'galeria-3', caption: 'Caja de luz LED' }],
-    desayunos: [{ src: 'galeria-4', caption: 'Desayuno sorpresa clásico' }]
-  };
+    sudaderas: [{ src: 'galeria-2.jpg', caption: 'Sudadera bordado pecho' }],
+    tazas: [{ src: 'galeria-3.jpg', caption: 'Taza mágica cambia con calor' }],
+    toldos: [{ src: 'galeria-4.jpg', caption: 'Toldo con impresión a medida' }],
+    led: [{ src: 'galeria-5.jpg', caption: 'Caja de luz LED' }],
+    desayunos: [{ src: 'galeria-6.jpg', caption: 'Desayuno sorpresa clásico' }]
+  };
 
   let GALLERIES = {}; // se llenará dinámicamente
 
@@ -710,8 +710,10 @@
   // Iniciar
   document.addEventListener('DOMContentLoaded', loadGalleries);
 </script>
+
 </body>
 </html>
+
 
 
 
