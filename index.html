@@ -462,219 +462,256 @@
     </div>
   </dialog>
 
-   <!-- Scripts -->
-  <script>
-    // Tema oscuro
+ <!-- Scripts: pega esto en lugar de tu <script> anterior -->
+<script>
+  // ====== CONFIG ======
+  // Tu Apps Script (URL que compartiste)
+  const DRIVE_API_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhbtJkFEZgCIUiv5W_-40N3t9cEzWQqM5MtZWTVl2JQEhkbjMDfBHQmm6nIkuBWKmuR0_VmXxbkax1F4L7rQ7r5waftiG6blKukifeavOd-3-BGHDDSlZsAb7KTayvRZRaC_pZ1NVKyeWb86MjQgd7751MYzMYET53xTE8HIOU6rNLL0eX2zcqEMHCEqEZDyE4Q3qdyM7w4lfhjXOY92ivwxDID24OJJL0KW5XYqKDZYvlJ311V9Rj6yWAy5gob8IVuqkI6nmqjZlvZo8bmv3gPk7INHw&lib=M-f4uCOF0buEgt1B_7ikHKATP5JRJfIZM';
+
+  // Galerías por defecto (fallback)
+  const DEFAULT_GALLERIES = {
+    playeras: [{ src: 'IMAGEN/color-removebg-preview.png', caption: 'Playera DTF logo a color' }],
+    sudaderas: [{ src: 'galeria-2.jpg', caption: 'Sudadera bordado pecho' }],
+    tazas: [{ src: 'galeria-3.jpg', caption: 'Taza mágica cambia con calor' }],
+    toldos: [{ src: 'galeria-4.jpg', caption: 'Toldo con impresión a medida' }],
+    led: [{ src: 'galeria-5.jpg', caption: 'Caja de luz LED' }],
+    desayunos: [{ src: 'galeria-6.jpg', caption: 'Desayuno sorpresa clásico' }]
+  };
+
+  let GALLERIES = {}; // se llenará dinámicamente
+
+  // UI init (tema, año, formulario)
+  (function initUI(){
+    const root = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
     const themeToggle = document.getElementById('themeToggle');
     const themeLabel = document.getElementById('themeLabel');
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') { root.classList.add('dark'); themeLabel.textContent = 'claro'; }
-    themeToggle.addEventListener('click', () => {
-      root.classList.toggle('dark');
-      const dark = root.classList.contains('dark');
-      themeLabel.textContent = dark ? 'claro' : 'oscuro';
-      localStorage.setItem('theme', dark ? 'dark' : 'light');
-    });
-    document.getElementById('year').textContent = new Date().getFullYear();
-    document.querySelector('form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      alert('¡Gracias! Te contactaremos por WhatsApp o correo.');
-    });
-
-    // ===== PORTAFOLIO DINÁMICO =====
-    // Carga dinámica desde JSON (portfolio.json)
-    // Estructura esperada del archivo JSON:
-    // {
-    //   "playeras": [{"src":"ruta.jpg", "caption":"Texto"}, ...],
-    //   "sudaderas": [...],
-    //   "tazas": [...],
-    //   "toldos": [...],
-    //   "led": [...],
-    //   "desayunos": [...]
-    // }
-
-    let GALLERIES = {};
-    const DEFAULT_GALLERIES = {
-      playeras: [
-        { src: 'IMAGEN/color-removebg-preview.png', caption: 'Playera DTF logo a color' },
-        { src: 'playeras-2.jpg', caption: 'Playera vinil textil tipografía' },
-        { src: 'playeras-3.jpg', caption: 'Playera con número deportivo' },
-        { src: 'playeras-4.jpg', caption: 'Playera full color evento' },
-      ],
-      sudaderas: [
-        { src: 'galeria-2.jpg', caption: 'Sudadera bordado pecho' },
-        { src: 'sudaderas-2.jpg', caption: 'Sudadera capucha impresión grande' },
-        { src: 'sudaderas-3.jpg', caption: 'Sudadera minimal personalizada' },
-      ],
-      tazas: [
-        { src: 'galeria-3.jpg', caption: 'Taza mágica cambia con calor' },
-        { src: 'tazas-2.jpg', caption: 'Taza con foto y nombre' },
-        { src: 'tazas-3.jpg', caption: 'Taza temática graduación' },
-      ],
-      toldos: [
-        { src: 'galeria-4.jpg', caption: 'Toldo con impresión a medida' },
-        { src: 'toldos-2.jpg', caption: 'Lona para fachada de negocio' },
-      ],
-      led: [
-        { src: 'galeria-5.jpg', caption: 'Caja de luz LED' },
-        { src: 'led-2.jpg', caption: 'Rótulo LED interior' },
-      ],
-      desayunos: [
-        { src: 'galeria-6.jpg', caption: 'Desayuno sorpresa clásico' },
-        { src: 'desayuno-2.jpg', caption: 'Canasta personalizada con nota' },
-        { src: 'desayuno-3.jpg', caption: 'Detalle con flores frescas' },
-      ]
-    };
-
-    // Si quieres usar Google Drive, pega aquí la URL de tu Apps Script desplegado (la que termina en /exec)
-    const DRIVE_API_URL = 'script.googleusercontent.com/macros/echo?user_content_key=AehSKLg78nT_zc4ykGB7trSpY6rW4OHrDDJZ8Tc-fU6WP0kY7YtMzebC1eiJJw2aWFQIZgAeS0shiuLgKLBkx75hOqatg3y9KXU_wRRfhsnfWuhyDAkF7C86rkuCBTISpUtRhkvKlf8hcM1rnnwoNrX-mEADpp1g5CMj991jRhBm9s8KMI1r1eTV1xQD1rmR5gCg-Tq831q04dXKAsD22j3pctaFlmABesBMjiLm9Yi_t4zwacRF9ByMjJk3JUjEVcALPKYUz0hle9vHl-XOFDSdUj9YHuu_XQ&lib=M-f4uCOF0buEgt1B_7ikHKATP5JRJfIZM';
-
-    async function loadGalleries(){
-      // muestra loader
-      const loader = document.getElementById('pfLoader');
-      if (loader) loader.style.display = 'flex';
-      try{
-        let res;
-        if (DRIVE_API_URL && DRIVE_API_URL.length > 10) {
-          res = await fetch(DRIVE_API_URL, { cache: 'no-store' });
-        } else {
-          res = await fetch('portfolio.json', { cache: 'no-store' });
-        }
-        if(!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data || typeof data !== 'object') throw new Error('JSON inválido');
-        GALLERIES = data;
-      } catch(err){
-        console.warn('No se pudo cargar portfolio desde Drive/JSON. Usando galería de ejemplo.', err);
-        // muestra mensaje de error breve al usuario
-        const portSection = document.getElementById('portafolio');
-        if (portSection) {
-          let msg = document.getElementById('pfError');
-          if (!msg) {
-            msg = document.createElement('div');
-            msg.id = 'pfError';
-            msg.className = 'mt-4 rounded-xl p-3 bg-red-50 text-red-700 text-sm border border-red-100';
-            msg.textContent = 'No se pudo cargar las imágenes desde Drive. Mostrando galería de ejemplo.';
-            portSection.insertBefore(msg, portSection.firstChild.nextSibling);
-          }
-        }
-        GALLERIES = DEFAULT_GALLERIES;
-      } finally {
-        initPortfolio();
-        if (loader) loader.style.display = 'none';
-      }
-    }
-
-    // Helpers para slides
-    function createSlides(trackEl, images) {
-      trackEl.innerHTML = '';
-      (images || []).forEach(({src, caption}) => {
-        const slide = document.createElement('div');
-        slide.className = 'relative';
-        const img = document.createElement('img');
-        img.src = src; img.alt = caption || '';
-        img.loading = 'lazy';
-        img.className = 'w-full aspect-video object-cover';
-        const cap = document.createElement('div');
-        cap.className = 'absolute bottom-0 left-0 right-0 p-3 text-white text-sm bg-gradient-to-t from-black/70 to-transparent';
-        cap.textContent = caption || '';
-        slide.appendChild(img);
-        slide.appendChild(cap);
-        trackEl.appendChild(slide);
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        root.classList.toggle('dark');
+        const dark = root.classList.contains('dark');
+        if (themeLabel) themeLabel.textContent = dark ? 'claro' : 'oscuro';
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
       });
+      if (themeLabel) themeLabel.textContent = root.classList.contains('dark') ? 'claro' : 'oscuro';
     }
+    const y = document.getElementById('year');
+    if (y) y.textContent = new Date().getFullYear();
+    const form = document.querySelector('form');
+    if (form) form.addEventListener('submit', (e)=>{ e.preventDefault(); alert('¡Gracias! Te contactaremos por WhatsApp o correo.'); });
+  })();
 
-    function makeCarousel({container, dots, interval=3500}) {
-      const track = container.querySelector('.slider-track');
-      const slides = [...track.children];
-      let index = 0, timer = null, playing = true;
+  // Construye URL para servir imagen vía webapp (si tu webapp soporta ?file=ID)
+  function webappImageUrl(fileId){
+    if(!fileId) return '';
+    // la URL del webapp ya inyectada; algunos webapps esperan ?file=ID
+    return DRIVE_API_URL + (DRIVE_API_URL.includes('?') ? '&' : '?') + 'file=' + encodeURIComponent(fileId);
+  }
 
-      function go(i){
-        index = (i + slides.length) % slides.length;
-        track.style.transform = `translateX(-${index*100}%)`;
-        if (dots) [...dots.children].forEach((d,di)=>d.setAttribute('aria-current', di===index));
-      }
-      function play(){ if(timer) clearInterval(timer); timer = setInterval(()=>{ go(index+1); }, interval); }
-      function stop(){ clearInterval(timer); timer=null; }
+  // Extrae ID de Drive desde varios formatos
+  function extractDriveId(url){
+    if(!url || typeof url !== 'string') return null;
+    const re1 = /\/d\/([a-zA-Z0-9_-]{10,})/;
+    const re2 = /[?&]id=([a-zA-Z0-9_-]{10,})/;
+    const re3 = /\/open\?id=([a-zA-Z0-9_-]{10,})/;
+    const m = url.match(re1) || url.match(re2) || url.match(re3);
+    return m ? m[1] : null;
+  }
 
-      if (dots) {
-        dots.innerHTML='';
-        slides.forEach((_,i)=>{
-          const d=document.createElement('button');
-          d.className='dot bg-white/70 dark:bg-white';
-          d.title = 'Ir a slide ' + (i+1);
-          d.addEventListener('click', ()=>{ go(i); if(playing){ stop(); play(); } });
-          dots.appendChild(d);
-        });
-      }
-      go(0);
-      play();
-      return { go, play, stop, get index(){return index;} };
-    }
-
-    function initPortfolio(){
-      // Carruseles inline
-      const inlineCarousels = [
-        { key: 'playeras', sliderSel: '[data-slider="inline-playeras"]', dotsSel: '[data-dots="inline-playeras"]' },
-        { key: 'tazas', sliderSel: '[data-slider="inline-tazas"]', dotsSel: '[data-dots="inline-tazas"]' },
-      ];
-      inlineCarousels.forEach(({key, sliderSel, dotsSel})=>{
-        const container = document.querySelector(sliderSel);
-        if (!container) return;
-        createSlides(container.querySelector('.slider-track'), GALLERIES[key] || []);
-        makeCarousel({container, dots: document.querySelector(dotsSel)});
-      });
-
-      // Lightbox
-      const lightbox = document.getElementById('lightbox');
-      const lbTitle = document.getElementById('lightboxTitle');
-      const lbTrack = document.getElementById('lightboxTrack');
-      const lbDots = document.getElementById('lightboxDots');
-      const lbCaption = document.getElementById('lightboxCaption');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const autoBtn = document.getElementById('autoBtn');
-      let lbCarousel = null; let lbImages = []; let autoOn = true;
-
-      function openLightbox(key, title){
-        lbImages = GALLERIES[key] || [];
-        lbTitle.textContent = title || 'Galería';
-        createSlides(lbTrack, lbImages);
-        lbDots.innerHTML='';
-        const container = { querySelector: sel => sel === '.slider-track' ? lbTrack : null };
-        lbCarousel = makeCarousel({container, dots: lbDots, interval: 3000});
-        updateCaption();
-        lightbox.showModal();
-        autoOn = true; autoBtn.classList.remove('opacity-50');
-        // Actualiza caption cuando cambien los puntos (delegación)
-        lbDots.addEventListener('click', ()=> updateCaption(), { once: true });
-      }
-      function updateCaption(){
-        const i = lbCarousel ? lbCarousel.index : 0;
-        lbCaption.textContent = lbImages[i]?.caption || '';
-      }
-
-      document.querySelectorAll('[data-gallery]').forEach(btn=>{
-        btn.addEventListener('click', ()=> openLightbox(btn.dataset.gallery, btn.dataset.title));
-      });
-
-      prevBtn.onclick = ()=>{ lbCarousel.go(lbCarousel.index-1); updateCaption(); };
-      nextBtn.onclick = ()=>{ lbCarousel.go(lbCarousel.index+1); updateCaption(); };
-      autoBtn.onclick = ()=>{
-        autoOn = !autoOn;
-        autoBtn.classList.toggle('opacity-50', !autoOn);
-        if (autoOn) lbCarousel.play(); else lbCarousel.stop();
+  // Crea slides en un track
+  function createSlides(trackEl, images) {
+    trackEl.innerHTML = '';
+    (images || []).forEach(({src, caption}) => {
+      const slide = document.createElement('div');
+      slide.className = 'relative w-full flex-shrink-0';
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.alt = caption || '';
+      img.className = 'w-full aspect-video object-cover rounded-xl';
+      img.src = src || '';
+      // Si falla, intentar resolver via ID -> webappImageUrl
+      img.onerror = () => {
+        const id = extractDriveId(src);
+        if (id) img.src = webappImageUrl(id);
+        else img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="28">Imagen no disponible</text></svg>';
       };
+      const cap = document.createElement('div');
+      cap.className = 'absolute bottom-0 left-0 right-0 p-3 text-white text-sm bg-gradient-to-t from-black/70 to-transparent rounded-b-xl';
+      cap.textContent = caption || '';
+      slide.appendChild(img);
+      slide.appendChild(cap);
+      trackEl.appendChild(slide);
+    });
+  }
+
+  // Carousel (tu implementación)
+  function makeCarousel({container, dots, interval=3500}) {
+    const track = container.querySelector('.slider-track');
+    const slides = [...track.children];
+    if (!slides.length) return null;
+    let index = 0, timer = null;
+    function go(i){
+      index = (i + slides.length) % slides.length;
+      track.style.transform = `translateX(-${index*100}%)`;
+      if (dots) [...dots.children].forEach((d,di)=>d.setAttribute('aria-current', di===index));
+    }
+    function play(){ if(timer) clearInterval(timer); timer = setInterval(()=> go(index+1), interval); }
+    function stop(){ clearInterval(timer); timer = null; }
+    if (dots) {
+      dots.innerHTML = '';
+      slides.forEach((_,i) => {
+        const d = document.createElement('button');
+        d.className = 'dot bg-white/70 dark:bg-white';
+        d.title = 'Ir a slide ' + (i+1);
+        d.addEventListener('click', ()=>{ go(i); play(); });
+        dots.appendChild(d);
+      });
+    }
+    go(0); play();
+    return { go, play, stop, get index(){ return index; } };
+  }
+
+  // Normaliza la respuesta del webapp a { key: [{src,caption},...] }
+  function normalizeDriveResponse(data){
+    // Data puede venir como { playeras: [{id,name}, ...] } o ya { playeras: [{src,caption}, ...] }
+    const out = {};
+    for (const key of Object.keys(data || {})){
+      out[key] = (data[key] || []).map(item => {
+        if (!item) return { src: '', caption: '' };
+        // si viene id/name (Apps Script listFiles)
+        if (item.id) return { src: webappImageUrl(item.id), caption: item.name || item.caption || '' };
+        // si viene src que es drive url -> transformar
+        if (item.src && item.src.includes('drive.google.com')) {
+          const id = extractDriveId(item.src);
+          if (id) return { src: webappImageUrl(id), caption: item.caption || item.name || '' };
+        }
+        // si viene src ya público
+        if (item.src) return { src: item.src, caption: item.caption || item.name || '' };
+        return { src: '', caption: item.caption || item.name || '' };
+      });
+    }
+    return out;
+  }
+
+  // Inicializa sliders inline y lightbox
+  function initPortfolio(){
+    // inline carousels
+    const inlineCarousels = [
+      { key: 'playeras', sliderSel: '[data-slider="inline-playeras"]', dotsSel: '[data-dots="inline-playeras"]' },
+      { key: 'tazas', sliderSel: '[data-slider="inline-tazas"]', dotsSel: '[data-dots="inline-tazas"]' },
+    ];
+    inlineCarousels.forEach(({key, sliderSel, dotsSel})=>{
+      const container = document.querySelector(sliderSel);
+      const dots = document.querySelector(dotsSel);
+      if (!container) return;
+      const track = container.querySelector('.slider-track');
+      createSlides(track, GALLERIES[key] || []);
+      makeCarousel({container, dots});
+    });
+
+    // Lightbox
+    const lightbox = document.getElementById('lightbox');
+    const lbTitle = document.getElementById('lightboxTitle');
+    const lbTrack = document.getElementById('lightboxTrack');
+    const lbDots = document.getElementById('lightboxDots');
+    const lbCaption = document.getElementById('lightboxCaption');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const autoBtn = document.getElementById('autoBtn');
+    let lbCarousel = null, lbImages = [], autoOn = true;
+
+    function openLightbox(key, title){
+      lbImages = GALLERIES[key] || [];
+      lbTitle.textContent = title || key;
+      lbTrack.innerHTML = ''; lbDots.innerHTML = '';
+      lbImages.forEach(({src,caption})=>{
+        const slide = document.createElement('div');
+        slide.className = 'relative w-full flex-shrink-0';
+        const img = document.createElement('img'); img.loading='lazy'; img.alt = caption||''; img.className='w-full aspect-video object-cover rounded-xl';
+        img.src = src;
+        img.onerror = () => {
+          const id = extractDriveId(src);
+          if (id) img.src = webappImageUrl(id);
+          else img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="28">Imagen no disponible</text></svg>';
+        };
+        slide.appendChild(img);
+        lbTrack.appendChild(slide);
+
+        const dot = document.createElement('button');
+        dot.className = 'dot bg-white/70 dark:bg-white';
+        dot.title = 'Ir a slide';
+        dot.addEventListener('click', ()=> { if(lbCarousel) { lbCarousel.go([...lbDots.children].indexOf(dot)); updateCaption(); }});
+        lbDots.appendChild(dot);
+      });
+
+      const container = { querySelector: s => s==='.slider-track' ? lbTrack : null };
+      lbCarousel = makeCarousel({container, dots: lbDots, interval:3000});
+      updateCaption(); lightbox.showModal(); autoOn=true; autoBtn.classList.remove('opacity-50');
+
+      prevBtn.onclick = ()=>{ if(lbCarousel) { lbCarousel.go(lbCarousel.index-1); updateCaption(); } };
+      nextBtn.onclick = ()=>{ if(lbCarousel) { lbCarousel.go(lbCarousel.index+1); updateCaption(); } };
+      autoBtn.onclick = ()=>{ autoOn = !autoOn; autoBtn.classList.toggle('opacity-50', !autoOn); if(lbCarousel) { if(autoOn) lbCarousel.play(); else lbCarousel.stop(); } };
+
       lightbox.addEventListener('cancel', e=> e.preventDefault());
-      lightbox.addEventListener('click', (e)=>{ if (e.target === lightbox) lightbox.close(); });
+      lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.close(); });
     }
 
-    // Iniciar cuando cargue el DOM
-    document.addEventListener('DOMContentLoaded', loadGalleries);
+    function updateCaption(){ if (!lbImages.length || !lbCarousel) return; lbCaption.textContent = lbImages[lbCarousel.index]?.caption || ''; }
 
-  </script>
+    // Attach open to gallery buttons
+    document.querySelectorAll('[data-gallery]').forEach(btn=>{
+      btn.addEventListener('click', ()=> {
+        const key = btn.dataset.gallery;
+        const title = btn.dataset.title || key;
+        openLightbox(key, title);
+      });
+    });
+  }
+
+  // Carga galerías desde el Apps Script
+  async function loadGalleries(){
+    const loader = document.getElementById('pfLoader');
+    if (loader) loader.style.display = 'flex';
+    try {
+      const res = await fetch(DRIVE_API_URL + '&_t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      GALLERIES = normalizeDriveResponse(data);
+      for (const k of Object.keys(DEFAULT_GALLERIES)) {
+        if (!GALLERIES[k] || !GALLERIES[k].length) GALLERIES[k] = DEFAULT_GALLERIES[k];
+      }
+    } catch (err) {
+      console.warn('No se pudieron cargar galerías desde Drive:', err);
+      GALLERIES = DEFAULT_GALLERIES;
+    } finally {
+      initPortfolio();
+      if (loader) loader.style.display = 'none';
+    }
+  }
+
+  // Normalizador (declarado abajo para uso en loadGalleries)
+  function normalizeDriveResponse(data){
+    const out = {};
+    for (const key of Object.keys(data || {})){
+      out[key] = (data[key] || []).map(item => {
+        if (!item) return { src: '', caption: '' };
+        if (item.id) return { src: webappImageUrl(item.id), caption: item.name || item.caption || '' };
+        if (item.src && item.src.includes('drive.google.com')) {
+          const id = extractDriveId(item.src);
+          if (id) return { src: webappImageUrl(id), caption: item.caption || item.name || '' };
+        }
+        if (item.src) return { src: item.src, caption: item.caption || item.name || '' };
+        return { src: '', caption: item.caption || item.name || '' };
+      });
+    }
+    return out;
+  }
+
+  // Iniciar
+  document.addEventListener('DOMContentLoaded', loadGalleries);
+</script>
 </body>
 </html>
+
 
 
